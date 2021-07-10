@@ -1,5 +1,7 @@
 import React from "react";
 
+import { edit_task } from "./library/TasksHelper";
+
 
 export default class Tasks extends React.Component {
 	constructor(props) {
@@ -51,7 +53,8 @@ export default class Tasks extends React.Component {
 
 		let task_types = this.props.task_types;
 		let target_item = this.target_item.current;
-		let target_tasks = task_types[target_item.task_type_index].tasks;
+		let target_task_type = task_types[target_item.task_type_index];
+		let target_tasks = target_task_type.tasks;
 		let target_index = -1;
 
 		if(this.target_item_node.current.classList.contains("task-card") || this.target_item_node.current.classList.contains("tasks")) {
@@ -68,10 +71,29 @@ export default class Tasks extends React.Component {
 			let drag_item = this.drag_item.current;
 			let current_tasks = task_types[drag_item.task_type_index].tasks;
 
-			target_tasks.splice(target_index, 0, current_tasks.splice(drag_item.task_index, 1)[0]);
-			this.drag_item.current = target_item;
+			let post_data = {
+				task_id: current_tasks[drag_item.task_index].id,
+				type_id: target_task_type.id,
+			};
+			
+			if(target_index === 0) {
+				post_data.order = current_tasks[drag_item.task_index].ordering;
+			}
+			else {
+				post_data.order = target_tasks[target_index - 1].ordering + 1;
+			}
 
-			this.props.set_task_types(task_types);
+			edit_task(post_data).then(result => {
+				if(result.status) {
+					current_tasks[drag_item.task_index].type_id = post_data.type_id;
+					current_tasks[drag_item.task_index].ordering = post_data.order;
+					
+					target_tasks.splice(target_index, 0, current_tasks.splice(drag_item.task_index, 1)[0]);
+					this.drag_item.current = target_item;
+		
+					this.props.set_task_types(task_types);
+				}
+			});
         }
 
         this.drag_item.current = null;
@@ -88,11 +110,11 @@ export default class Tasks extends React.Component {
 				{ task_types.map((task_type, task_type_index) => {
 					return <div
 						key={ task_type_index }
-						className={"task-card " + task_type.type + (task_type_index > 0 ? " ml-6" : "") }
+						className={"task-card " + (task_type_index > 0 ? " ml-6" : "") }
 						onDragEnter={ dragging ? (e) => this.handle_drag_enter(e, { task_type_index, task_index: 0 }) : null }
 					>
 						<div className="header text-center mb-12">
-							{ task_type.title }
+							{ task_type.name }
 						</div>
 			
 						<div className="tasks">
