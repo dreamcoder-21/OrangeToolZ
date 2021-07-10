@@ -78,8 +78,14 @@ class App extends React.Component {
 			let post_data = {
 				name: this.state.task_name.trim(),
 				type_id: task_type.id,
-				order: tasks[tasks.length - 1].ordering + 1,
 			};
+
+			if(tasks.length === 0) {
+				post_data.order = 1;
+			}
+			else {
+				post_data.order = tasks[tasks.length - 1].ordering + 1;
+			}
 
 			add_task(post_data).then(result => {
 				if(!result.status) {
