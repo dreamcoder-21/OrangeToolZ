@@ -1,0 +1,23 @@
+{
+  "type": "mysql",
+  "host": "localhost",
+  "port": 3306,
+  "username": "root",
+  "password": "",
+  "database": "task_management_system",
+  "synchronize": true,
+  "entities": [
+    "entity/*.js"
+  ],
+  "subscribers": [
+    "subscriber/*.js"
+  ],
+  "migrations": [
+    "migration/*.js"
+  ],
+  "cli": {
+    "entitiesDir": "src/entity",
+    "migrationsDir": "src/migration",
+    "subscribersDir": "src/subscriber"
+  }
+}
